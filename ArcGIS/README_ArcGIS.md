@@ -1,0 +1,1 @@
+This folder contains Python code used for the ArcGIS analysis. Note that the data files (e.g. wetland shapefiles) are not contained in this repository. You can find links to the data sources in the Supporting Information to the paper and in the README. 

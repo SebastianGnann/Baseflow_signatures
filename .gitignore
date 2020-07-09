@@ -1,0 +1,7 @@
+# 
+*.asv
+Old/*
+Gemma/*
+Lina/*
+Nicholas/*
+RecessionAnalysis/*
