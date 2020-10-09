@@ -1,17 +1,17 @@
 # Linking baseflow signatures to catchment attributes and hydrological processes
 
-This repository contains code and data used for the submitted manuscript: Gnann et al. (2020) - Linking baseflow signatures to catchment attributes and hydrological processes.
-Please email sebastian.gnann@bristol.ac.uk if you have questions.
+This repository contains code and data used for the submitted manuscript: Gnann et al. (2020) - Including Regional Knowledge Improves Baseflow Signature Predictions in Large Sample Hydrology.
+Please email sebastian.gnann@bristol.ac.uk if you have any questions.
 
 - This repository doesn't contain any of the original datasets (links to obtain the datasets can be found in the table below)
 - To create the Matlab struc file that contains CAMELS data you can use code from this repository: https://github.com/SebastianGnann/CAMELS_Matlab
-- One additional open-source package is needed to create the plots: the Brewerplot package (https://github.com/DrosteEffect/BrewerMap).
+- One additional open-source package is needed to create the plots: the Brewerplot package (https://github.com/DrosteEffect/BrewerMap)
 - Matlab version: **Matlab R2018a**
 
 ## Overview of functions and folders:
-- *baseflow_signatures_attribute_plots.m* loads data and creates scatter plots between baseflow signatures and catchment attributes shown in the paper.
+- *baseflow_signatures_attribute_plots.m* loads data and creates the scatter plots between baseflow signatures and catchment attributes shown in the paper.
 
-- *baseflow_signatures_hydrograph_plots.m* loads data and creates hydrographs shown in the paper. 
+- *baseflow_signatures_hydrograph_plots.m* loads data and plots the hydrographs shown in the paper. 
 
 - *baseflow_signatures_water_balance.m* estimates regional groundwater flow via the water balance (see Supplement).
 
@@ -19,15 +19,17 @@ Please email sebastian.gnann@bristol.ac.uk if you have questions.
 
 - *calculate_attributes.m* calculates catchment attributes using CAMELS shapefiles and raster datasets created with ArcGIS.
 
-- *ArcGIS*: contains ArcGIS files and Python code used to create raster datasets.
+- *ArcGIS*: contains Python code used in ArcGIS.
 
-- *Functions*: functions used to plot, calculate signatures, etc.
+- *Functions*: functions used to plot hydrographs, calculate signatures, etc.
 
-- *Results*: folder where results (e.g. catchment attributes) are saved.
+- *Results*: folder where results (e.g. catchment attributes as mat-files) are saved.
 
-- *Images*: folder where plots are saved.
+- *Images*: folder where figures are saved.
 
-- *new_CAMELS_attributes_and_signatures.xlsx* contains new catchment attributes and hydrological signatures.
+## Newly derived catchment attributes and signatures
+Newly derived catchment attributes and baseflow signatures saved into single text files can be found at: https://doi.org/10.5281/zenodo.4071983.
+
 
 
 ## Acknowledgements
@@ -42,13 +44,14 @@ The function *read_ascii_grid.m* was provided by Gemma Coxon.
 **DATASET** | **URL**
 --- | ---
 CAMELS | https://ral.ucar.edu/solutions/products/camels
-**CAMELS datasets** |
+**Datasets in CAMELS** |
 STATSGO | http://www.soilinfo.psu.edu/index.cgi?soil_data&index.html
 GLiM |  https://www.geo.uni-hamburg.de/en/geologie/forschung/geochemie/glim.html
 GLHYMPS |  https://dataverse.scholarsportal.info/dataset.xhtml?persistentId=doi:10.5683/SP2/DLGXYO
 **Additional datasets** |
 HydroSHEDS | https://hydrosheds.org/downloads
 Generalized Glacial Limit Lines | https://purl.stanford.edu/vz874sc7648
+Physiographic Divisions of the U.S. | https://water.usgs.gov/GIS/metadata/usgswrd/XML/physio.xml#Metadata_Reference_Information
 USGS Geological Map | https://pubs.er.usgs.gov/publication/ds1052
 Principal Aquifers of the U.S. | https://water.usgs.gov/ogw/aquifer/map.html
 National Wetlands Inventory | https://www.fws.gov/wetlands/index.html

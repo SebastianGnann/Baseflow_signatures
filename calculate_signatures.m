@@ -1,6 +1,6 @@
 %% calculate_signatures
 %
-%  Calculates baseflow signatures for CAMELS catchments and saves them in 
+%   Calculates baseflow signatures for CAMELS catchments and saves them in 
 %   a mat-file.
 %
 %   ---
@@ -34,7 +34,11 @@ clear data_CAMELS_struc
 %% loop over all catchments
 n_CAMELS = length(CAMELS_data.gauge_id);
 BFI5 = NaN(n_CAMELS,1); % UKIH method
+BFI30 = NaN(n_CAMELS,1); % UKIH method
+BFI60 = NaN(n_CAMELS,1); % UKIH method
 BFI90 = NaN(n_CAMELS,1); % UKIH method
+BFI120 = NaN(n_CAMELS,1); % UKIH method
+BFI180 = NaN(n_CAMELS,1); % UKIH method
 BFI_LH = NaN(n_CAMELS,1); % Lyne-Hollick filter
 Q5 = NaN(n_CAMELS,1); %
 Qmean = NaN(n_CAMELS,1); %
@@ -66,7 +70,11 @@ for i = 1:n_CAMELS
     
     % calculate signatures
     BFI5(i) = sig_BFI(Q,t,'method','UKIH');
+    BFI30(i) = sig_BFI(Q,t,'method','UKIH','parameters',30);
+    BFI60(i) = sig_BFI(Q,t,'method','UKIH','parameters',60);
     BFI90(i) = sig_BFI(Q,t,'method','UKIH','parameters',90);
+    BFI120(i) = sig_BFI(Q,t,'method','UKIH','parameters',120);
+    BFI180(i) = sig_BFI(Q,t,'method','UKIH','parameters',180);
     BFI_LH(i) = sig_BFI(Q,t,'method','Lyne_Hollick');
     
     Q5(i) = sig_x_percentile(Q,t,5);
@@ -119,12 +127,14 @@ for i = 1:n_CAMELS
     recession_alpha_BN(i) = para_mat(ind,1);
     recession_beta_BN(i) = para_mat(ind,2);
     
-    % add climate data?
-    
 end
 
 CAMELS_signatures.BFI5 = BFI5;
+CAMELS_signatures.BFI30 = BFI30;
+CAMELS_signatures.BFI60 = BFI60;
 CAMELS_signatures.BFI90 = BFI90;
+CAMELS_signatures.BFI120 = BFI120;
+CAMELS_signatures.BFI180 = BFI180;
 CAMELS_signatures.BFI_LH = BFI_LH;
 CAMELS_signatures.Qmean = Qmean;
 CAMELS_signatures.Q5 = Q5;

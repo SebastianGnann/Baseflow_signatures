@@ -96,7 +96,7 @@ leg.ItemTokenSize = [7,7];
 
 v = get(gca,'Position');
 % set(gca,'Position',[v(1).*0.7 v(2)*2 v(3) v(4)*0.8])
-set(gca,'Position',[v(1) v(2) v(3)*0.8  v(4)])
+set(gca,'Position',[v(1) v(2) v(3)*0.8 v(4)])
 
 % dim =  [0.286 0.9 0.142 0.128];
 % annotation('textbox',dim,'String',title_str,'FitBoxToText','on',...

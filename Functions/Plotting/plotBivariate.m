@@ -95,7 +95,7 @@ if show_hist
     scatterhist(x,y,'Color','k','NBins',20)
     hold on
 else
-    scatter(x,y,25,'k') 
+    scatter(x,y,30,'k') 
 end
 
 Pearson_cor = corr(x,y,'Type','Pearson','rows','complete');

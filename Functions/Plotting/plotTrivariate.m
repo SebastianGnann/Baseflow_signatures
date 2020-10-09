@@ -105,7 +105,7 @@ hold on
 
 % plot
 colormap(colour_mat)
-scatter(x,y,25,z,'filled')
+scatter(x,y,30,z,'filled','markeredgecolor','k')
 dcm_obj = datacursormode(figure(fig));
 set(dcm_obj,'UpdateFcn',{@myupdatefcn,ID,index})
 xlabel(x_name)

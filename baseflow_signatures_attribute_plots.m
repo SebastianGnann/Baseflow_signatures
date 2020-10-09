@@ -1,7 +1,7 @@
 %% baseflow_signatures_attribute_plots
 %
 %   Loads data and creates scatter plots between baseflow signatures and 
-%   catchment attributes shown in the paper.
+%   catchment attributes which are shown in the paper.
 %   (Contains additional attributes not used in the paper.)
 %
 %   ---
@@ -63,8 +63,6 @@ glaciers = load('glaciers.mat'); glacier_fraction = glaciers.data.glacier_fracti
 % geology
 porosity = load('porosity.mat'); porosity = porosity.data.attribute_mean;
 permeability = load('permeability.mat'); permeability = permeability.data.attribute_geomean;
-% porosity2 = load('porosity2.mat'); porosity2 = porosity2.data.attribute_mean;
-% permeability2 = load('permeability2.mat'); permeability2 = permeability2.data.attribute_geomean;
 % topography
 elevation = load('elevation.mat');
 hypsometric_integral = elevation.data.hypsometric_integral;
@@ -90,103 +88,113 @@ other_frac = Edwards.data.other_frac; other_frac(isn==1) = NaN;
 lowland = lowland_fraction>0.5;
 upland = upland_fraction>0.5;
 snow = CAMELS_data.frac_snow>0.3;
-% lakes = (lake_fraction)>0.01;
 lakes = (lake_fraction+freshwater_fraction)>0.01;
-% freshwater = (freshwater_fraction)>0.1;
-% lakes2 = ((freshwater_fraction+lake_fraction)>0.01 & data_CAMELS.clay_frac>20);
 glaciers = glacier_fraction>0;
+index = 1:length(CAMELS_data.gauge_id);
 
-%% glacial deposits
+%% Glacial areas
+% Great Lakes catchments are inside the Wisconsin glacial area. Mississippi
+% catchments are outside the Wisconsin glacial area, but inside the
+% Pre-Wisconsin area.
+GreatLakes = index(Wisconsin_fraction>0.5); 
+UpperMississippi = index(Pre_Wisconsin_fraction>0.5&Wisconsin_fraction<0.5); 
+
 plotTrivariate(-1,-1,-1,...
     'x_name','f{clay} [-]','y_name','f{sand} [-]','z_name','BFI5 [-]',...
-    'ID',CAMELS_data.gauge_id,...
+    'ID',-1,...
     'colour_scheme','YlGNBu','flip_colour_scheme',false,'nr_colours',10,...
     'x_limits',[0 .5],'y_limits',[0 1],...
     'z_limits',[0 1],'z_lower_limit_open',false,'z_upper_limit_open',false,...
     'figure_title','','figure_name','soil_texture',...
     'save_figure',false,'figure_path',fig_path,'figure_type','-dmeta')
-% p4=scatter(data_CAMELS.clay_frac./100,data_CAMELS.sand_frac./100,20,...
-%     signatures_CAMELS.BFI5,'filled','MarkerFaceColor',[0.8 0.8 0.8]); 
-p0=scatter(CAMELS_data.clay_frac(Wisconsin_fraction>0.5)./100,CAMELS_data.sand_frac(Wisconsin_fraction>0.5)./100,20,...
-    CAMELS_signatures.BFI5(Wisconsin_fraction>0.5),'filled'); 
-p1=scatter(CAMELS_data.clay_frac(Pre_Wisconsin_fraction>0.5&Wisconsin_fraction<0.5)./100,CAMELS_data.sand_frac(Pre_Wisconsin_fraction>0.5&Wisconsin_fraction<0.5)./100,20,...
-    CAMELS_signatures.BFI5(Pre_Wisconsin_fraction>0.5&Wisconsin_fraction<0.5),'^','filled'); 
-p2=scatter(-1,-1,20,0.6,'filled'); % fake legend
-p3=scatter(-1,-1,20,0.3,'^','filled');
-legend([p2,p3],{'Wisconsin','Pre Wisconsin'},'box','off','location','northeast','FontSize',7,'ItemTokenSize',[7,7])
-% set(gca,'YScale','log')
+p0=scatter(CAMELS_data.clay_frac(GreatLakes)./100,CAMELS_data.sand_frac(GreatLakes)./100,25,...
+    CAMELS_signatures.BFI5(GreatLakes),'filled','markeredgecolor','k'); 
+p1=scatter(CAMELS_data.clay_frac(UpperMississippi)./100,CAMELS_data.sand_frac(UpperMississippi)./100,25,...
+    CAMELS_signatures.BFI5(UpperMississippi),'^','filled','markeredgecolor','k'); 
+p2=scatter(-1,-1,25,0.6,'filled','markeredgecolor','k'); % fake legend
+p3=scatter(-1,-1,25,0.3,'^','filled','markeredgecolor','k');
+[leg,icons] = legend([p2,p3],{'Wisconsin','Pre-Wisconsin'},'box','on','location','northeast'); %,'FontSize',8
 saveFig(gcf,strcat('trivariate_','soil_texture'),fig_path,'-dmeta')
-disp(corr(CAMELS_signatures.BFI5(Pre_Wisconsin_fraction>0.5),CAMELS_data.clay_frac(Pre_Wisconsin_fraction>0.5),'Type','Spearman','Rows','Complete'))
-disp(corr(CAMELS_signatures.BFI5(Pre_Wisconsin_fraction>0.5),CAMELS_data.sand_frac(Pre_Wisconsin_fraction>0.5),'Type','Spearman','Rows','Complete'))
+disp(corr(CAMELS_signatures.BFI5([GreatLakes UpperMississippi]),CAMELS_data.clay_frac([GreatLakes UpperMississippi]),'Type','Spearman','Rows','Complete'))
+disp(corr(CAMELS_signatures.BFI5([GreatLakes UpperMississippi]),CAMELS_data.sand_frac([GreatLakes UpperMississippi]),'Type','Spearman','Rows','Complete'))
 
-%% North Carolina
-catchments = [115:117 119 122:136 211:213 239:244 247 250:252]; % catchment indices
+%% Appalachian Mountains 
+% not shown in paper
+% Appalachian Mountain catchments are picked manually.
+AppalachianMountains = [115:117 119 122:136 211:213 239:244 247 250:252]; 
 
-plotTrivariate(CAMELS_data.clay_frac(catchments)./100,...
-    CAMELS_data.sand_frac(catchments)./100,...
-    CAMELS_signatures.BFI5(catchments),...
+plotTrivariate(CAMELS_data.clay_frac(AppalachianMountains)./100,...
+    CAMELS_data.sand_frac(AppalachianMountains)./100,...
+    CAMELS_signatures.BFI5(AppalachianMountains),...
     'x_name','f{clay} [-]','y_name','f{sand} [-]','z_name','BFI5 [-]',...
-    'ID',CAMELS_data.gauge_id,...
+    'ID',CAMELS_data.gauge_id(AppalachianMountains),...
     'colour_scheme','YlGNBu','flip_colour_scheme',false,'nr_colours',10,...
     'x_limits',[0 .5],'y_limits',[0 1],...
     'z_limits',[0 1],'z_lower_limit_open',false,'z_upper_limit_open',false,...
     'figure_title','','figure_name','soil_texture',...
     'save_figure',false,'figure_path',fig_path,'figure_type','-dmeta')
-disp(corr(CAMELS_signatures.BFI5(catchments),CAMELS_data.clay_frac(catchments),'Type','Spearman','Rows','Complete'))
-disp(corr(CAMELS_signatures.BFI5(catchments),CAMELS_data.sand_frac(catchments),'Type','Spearman','Rows','Complete'))
+disp(corr(CAMELS_signatures.BFI5(AppalachianMountains),CAMELS_data.clay_frac(AppalachianMountains),'Type','Spearman','Rows','Complete'))
+disp(corr(CAMELS_signatures.BFI5(AppalachianMountains),CAMELS_data.sand_frac(AppalachianMountains),'Type','Spearman','Rows','Complete'))
 
-%% Oregon age plots
-catchments = [644:649 651:652 654:657]; % Oregon central cascades westwards draining
+%% Oregon Cascades
+% Oregon cascades catchments (westwards draining) are picked manually.
+OregonCascades = [644:649 651:652 654:657]; 
 
-plotTrivariate(mean_age(catchments),CAMELS_signatures.BFI90(catchments),CAMELS_data.frac_snow(catchments),...
-    'x_name','Mean age [Ma]','y_name','BFI{90} [-]','z_name','f{snow} [-]','ID',CAMELS_data.gauge_id(catchments),...
+plotTrivariate(mean_age(OregonCascades),CAMELS_signatures.BFI90(OregonCascades),CAMELS_data.frac_snow(OregonCascades),...
+    'x_name','Mean age [Ma]','y_name','BFI{90} [-]','z_name','f{snow} [-]','ID',CAMELS_data.gauge_id(OregonCascades),...
     'colour_scheme','Greys','flip_colour_scheme',false,'nr_colours',10,...
     'y_limits',[0.0 .5],'x_limits',[0 20],...
     'z_limits',[0.0 .5],'z_lower_limit_open',false,'z_upper_limit_open',false,...
     'figure_title','','figure_name','Mean_Age',...
     'save_figure',false,'figure_path',fig_path,'figure_type','-dmeta')
 % set(gca,'YScale','log');
-saveFig(gcf,strcat('trivariate_','Mean_Age'),fig_path)
-disp(corr(mean_age(catchments),CAMELS_signatures.BFI90(catchments),'Type','Spearman'))
+saveFig(gcf,strcat('trivariate_','Mean_Age'),fig_path,'-dmeta')
+disp(corr(mean_age(OregonCascades),CAMELS_signatures.BFI90(OregonCascades),'Type','Spearman'))
 
-%% Ozarks sinkholes plot
-sinkholes(Pre_Wisconsin_fraction>0) = NaN; % remove catchments overlain by glacial deposits
+%% Ozarks Plateau
+% Use sinkhole attribute to get catchments in Missouri (attribute is NaN
+% outside Missouri). Then remove catchments outside the Ozarks, which are 
+% the catchments that are overlain by glacial deposits.
+OzarksMissouri = index(~isnan(sinkholes)& Pre_Wisconsin_fraction==0);
 
-plotBivariate(sinkholes./CAMELS_data.area_gages2,CAMELS_signatures.BFI5,...
-    'x_name','# Sinkholes / km2 ','y_name','BFI{5} [-]','ID',CAMELS_data.gauge_id,...
+sinkhole_density = sinkholes./CAMELS_data.area_gages2;
+plotBivariate(sinkhole_density(OzarksMissouri),CAMELS_signatures.BFI5(OzarksMissouri),...
+    'x_name','# Sinkholes / km2 ','y_name','BFI{5} [-]','ID',CAMELS_data.gauge_id(OzarksMissouri),...
     'show_corr',false,'show_fit',false,'show_hist',false,...
     'y_limits',[0 1],'x_limits',[0 0.5],...
     'figure_title','','figure_name','Sinkholes',...
     'save_figure',true,'figure_path',fig_path,'figure_type','-dmeta')
-disp(corr(sinkholes./CAMELS_data.area_gages2,CAMELS_signatures.BFI5,'Type','Spearman','rows','complete'))
+disp(corr(sinkhole_density(OzarksMissouri),CAMELS_signatures.BFI5(OzarksMissouri),'Type','Spearman','rows','complete'))
 
-%% Edwards Trinity
-catchments = [470 472:473 475:479 466:467 460:462 456:457 455 ]'; %459
+%% Edwards Plateau
+% Edwards Plateau catchments are picked manually.
+EdwardsPlateau = [470 472:473 475:479 466:467 460:462 456:457 455 ]'; 
 
-BFI90 = CAMELS_signatures.BFI90(catchments);
-% BFI90(BFI90==0) = 1e-4; % to be able to show data on log plot
-plotTrivariate(edwards_trinity_frac(catchments),BFI90,...
-    CAMELS_data.runoff_ratio(catchments),...
-    'x_name','Edwards-Trinity frac. [-]','y_name','BFI{90} [-]','z_name','Q/P [-]','ID',CAMELS_data.gauge_id(catchments),...
-    'colour_scheme','Oranges','flip_colour_scheme',true,'nr_colours',10,...
+BFI90 = CAMELS_signatures.BFI90(EdwardsPlateau);
+plotTrivariate(edwards_trinity_frac(EdwardsPlateau),CAMELS_signatures.BFI90(EdwardsPlateau),...
+    CAMELS_data.runoff_ratio(EdwardsPlateau),...
+    'x_name','Edwards-Trinity frac. [-]','y_name','BFI{90} [-]','z_name','Q/P [-]',...
+    'ID',CAMELS_data.gauge_id(EdwardsPlateau),...
+    'colour_scheme','YlGn','flip_colour_scheme',false,'nr_colours',10,...
     'y_limit',[0 0.5],'x_limit',[0 1],...
     'z_limits',[0.0 .25],'z_lower_limit_open',false,'z_upper_limit_open',false,...
     'figure_title','','figure_name','Edwards',...
     'save_figure',false,'figure_path',fig_path,'figure_type','-dmeta')
-% set(gca,'YScale','log');
-% set(gca,'XDir','reverse')
-% yticks([1e-4 1e-3 1e-2 1e-1 1])
-% yticklabels({'0','10^{-3}','10^{-2}','10^{-1}','10^{-0}'})
-% annotation(gcf,'line',[0.1475 0.1475],[0.23 0.263],'color',[1 1 1],'linewidth',3);
-% annotation(gcf,'line',[0.135 0.157],[0.253 0.273]);
-% annotation(gcf,'line',[0.135 0.157],[0.22 0.24]);
-saveFig(gcf,strcat('trivariate_','Edwards'),fig_path)
-disp(corr(edwards_trinity_frac(catchments),BFI90,'Type','Spearman'))
+saveFig(gcf,strcat('trivariate_','Edwards'),fig_path,'-dmeta')
+disp(corr(edwards_trinity_frac(EdwardsPlateau),CAMELS_signatures.BFI90(EdwardsPlateau),'Type','Spearman'))
 
-%% Lakes and wetlands
+%% Lakes and wetlands, snow, and subsurface storage
 colour_mat = brewermap(12,'Paired');
 % correlation for all catchments
 disp(corr(CAMELS_signatures.BFI5,CAMELS_signatures.recession_beta,'Type','Spearman','Rows','Complete'))
+
+% Prairie Pothole Region and Florida catchments are picked manually.
+PrairiePothole = [288:294 297 363:365 367 368]; 
+Florida = [145:158 160:162]; 
+
+Subsurface = index(~lakes&~snow);
+SurfaceWater = index(lakes);
+Snow = index(~lakes&snow);
 
 % subsurface
 plotBivariate(-1,-1,...
@@ -194,28 +202,22 @@ plotBivariate(-1,-1,...
     'show_corr',false,'show_fit',false,'show_hist',false,...
     'x_limits',[0 1],'y_limits',[0 7],...
     'figure_title','(c) Subsurface','figure_name','release','save_figure',false,'figure_path',fig_path)
-p0=scatter(CAMELS_signatures.BFI5,CAMELS_signatures.recession_beta,20,'filled','MarkerFaceColor',[0.8 0.8 0.8]); %colour_mat(7,:)
-p1=scatter(CAMELS_signatures.BFI5(~lakes&~snow),CAMELS_signatures.recession_beta(~lakes&~snow),20,'filled','MarkerFaceColor',[0.4 0.4 0.4]); %colour_mat(12,:)
-% p2=scatter(signatures_CAMELS.BFI5(upland&~lakes&~snow&strcmp(data_CAMELS.geol_1st_class,'Siliciclastic sedimentary rocks')),signatures_CAMELS.recession_beta(upland&~lakes&~snow&strcmp(data_CAMELS.geol_1st_class,'Siliciclastic sedimentary rocks')),20,'filled','MarkerFaceColor',colour_mat(7,:)); %colour_mat(12,:)
-% p3=scatter(signatures_CAMELS.BFI5(upland&~lakes&~snow&strcmp(data_CAMELS.geol_1st_class,'Metamorphics')),signatures_CAMELS.recession_beta(upland&~lakes&~snow&strcmp(data_CAMELS.geol_1st_class,'Metamorphics')),20,'filled','MarkerFaceColor',colour_mat(4,:)); %colour_mat(12,:)
-% legend([p3 p2 p1],{'Metamorphic rock','Siliciclastic sedimentary rock','Other'},'box','off','location','northwest','FontSize',7,'ItemTokenSize',[7,7])
-% set(gca,'YScale','log')
+p0=scatter(CAMELS_signatures.BFI5,CAMELS_signatures.recession_beta,25,'filled','MarkerFaceColor',[0.8 0.8 0.8]); %colour_mat(7,:)
+p1=scatter(CAMELS_signatures.BFI5(Subsurface),CAMELS_signatures.recession_beta(Subsurface),25,'filled','MarkerFaceColor',[0.4 0.4 0.4]); %colour_mat(12,:)
 saveFig(gcf,strcat('bivariate_','recession_subsurface'),fig_path,'-dmeta')
-disp(corr(CAMELS_signatures.BFI5(~lakes&~snow),CAMELS_signatures.recession_beta(~lakes&~snow),'Type','Spearman','Rows','Complete'))
+disp(corr(CAMELS_signatures.BFI5(Subsurface),CAMELS_signatures.recession_beta(Subsurface),'Type','Spearman','Rows','Complete'))
 
-% lakes
-catchments = [288:294 297 363:365 367 368 145:158 160:162]; % Prairie Pothole Region and Florida
+% surface water bodies
 plotBivariate(-1,-1,...
     'x_name','BFI{5} [-]','y_name','\betam [-]','ID',1,...
     'show_corr',false,'show_fit',false,'show_hist',false,...
     'x_limits',[0 1],'y_limits',[0 7],...
     'figure_title','(a) Surface Water','figure_name','release','save_figure',false,'figure_path',fig_path)
-p0=scatter(CAMELS_signatures.BFI5,CAMELS_signatures.recession_beta,20,'filled','MarkerFaceColor',[0.8 0.8 0.8]); %colour_mat(7,:)
-p1=scatter(CAMELS_signatures.BFI5(lakes),CAMELS_signatures.recession_beta(lakes),20,'filled','MarkerFaceColor',colour_mat(2,:));
-p2=scatter(CAMELS_signatures.BFI5(catchments),CAMELS_signatures.recession_beta(catchments),25,'MarkerEdgeColor',[0 0 0],'linewidth',1.0);
-% set(gca,'YScale','log')
+p0=scatter(CAMELS_signatures.BFI5,CAMELS_signatures.recession_beta,25,'filled','MarkerFaceColor',[0.8 0.8 0.8]); %colour_mat(7,:)
+p1=scatter(CAMELS_signatures.BFI5(SurfaceWater),CAMELS_signatures.recession_beta(SurfaceWater),25,'filled','MarkerFaceColor',colour_mat(2,:));
+p2=scatter(CAMELS_signatures.BFI5([PrairiePothole Florida]),CAMELS_signatures.recession_beta([PrairiePothole Florida]),25,'MarkerEdgeColor',[0 0 0],'linewidth',1.0);
 saveFig(gcf,strcat('bivariate_','recession_lakes'),fig_path,'-dmeta')
-disp(corr(CAMELS_signatures.BFI5(lakes),CAMELS_signatures.recession_beta(lakes),'Type','Spearman','Rows','Complete'))
+disp(corr(CAMELS_signatures.BFI5(SurfaceWater),CAMELS_signatures.recession_beta(SurfaceWater),'Type','Spearman','Rows','Complete'))
 
 % snow
 plotBivariate(-1,-1,...
@@ -223,11 +225,87 @@ plotBivariate(-1,-1,...
     'show_corr',false,'show_fit',false,'show_hist',false,...
     'x_limits',[0 1],'y_limits',[0 7],...
     'figure_title','(b) Snow','figure_name','release','save_figure',false,'figure_path',fig_path)
-p0=scatter(CAMELS_signatures.BFI5,CAMELS_signatures.recession_beta,20,'filled','MarkerFaceColor',[0.8 0.8 0.8]); %colour_mat(7,:)
-p1=scatter(CAMELS_signatures.BFI5(snow&~lakes),CAMELS_signatures.recession_beta(snow&~lakes),20,'filled','MarkerFaceColor',colour_mat(10,:));%colour_mat(10,:));
-% set(gca,'YScale','log')
+p0=scatter(CAMELS_signatures.BFI5,CAMELS_signatures.recession_beta,25,'filled','MarkerFaceColor',[0.8 0.8 0.8]); %colour_mat(7,:)
+p1=scatter(CAMELS_signatures.BFI5(Snow),CAMELS_signatures.recession_beta(Snow),25,'filled','MarkerFaceColor',colour_mat(10,:));%colour_mat(10,:));
 saveFig(gcf,strcat('bivariate_','recession_snow'),fig_path,'-dmeta')
-disp(corr(CAMELS_signatures.BFI5(snow&~lakes),CAMELS_signatures.recession_beta(snow&~lakes),'Type','Spearman','Rows','Complete'))
+disp(corr(CAMELS_signatures.BFI5(Snow),CAMELS_signatures.recession_beta(Snow),'Type','Spearman','Rows','Complete'))
+
+%% Same plots but with BFI90 and beta
+% correlation for all catchments
+disp(corr(CAMELS_signatures.BFI90,CAMELS_signatures.recession_beta,'Type','Spearman','Rows','Complete'))
+
+% subsurface
+plotBivariate(-1,-1,...
+    'x_name','BFI{90} [-]','y_name','\betam [-]','ID',1,...
+    'show_corr',false,'show_fit',false,'show_hist',false,...
+    'x_limits',[0 1],'y_limits',[0 7],...
+    'figure_title','(c) Subsurface','figure_name','release','save_figure',false,'figure_path',fig_path)
+p0=scatter(CAMELS_signatures.BFI90,CAMELS_signatures.recession_beta,25,'filled','MarkerFaceColor',[0.8 0.8 0.8]); %colour_mat(7,:)
+p1=scatter(CAMELS_signatures.BFI90(Subsurface),CAMELS_signatures.recession_beta(Subsurface),25,'filled','MarkerFaceColor',[0.4 0.4 0.4]); %colour_mat(12,:)
+saveFig(gcf,strcat('bivariate_','BFI90_recession_subsurface'),fig_path,'-dpdf')
+disp(corr(CAMELS_signatures.BFI90(Subsurface),CAMELS_signatures.recession_beta(Subsurface),'Type','Spearman','Rows','Complete'))
+
+% lakes
+plotBivariate(-1,-1,...
+    'x_name','BFI{90} [-]','y_name','\betam [-]','ID',1,...
+    'show_corr',false,'show_fit',false,'show_hist',false,...
+    'x_limits',[0 1],'y_limits',[0 7],...
+    'figure_title','(a) Surface Water','figure_name','release','save_figure',false,'figure_path',fig_path)
+p0=scatter(CAMELS_signatures.BFI90,CAMELS_signatures.recession_beta,25,'filled','MarkerFaceColor',[0.8 0.8 0.8]); %colour_mat(7,:)
+p1=scatter(CAMELS_signatures.BFI90(SurfaceWater),CAMELS_signatures.recession_beta(SurfaceWater),25,'filled','MarkerFaceColor',colour_mat(2,:));
+p2=scatter(CAMELS_signatures.BFI90([PrairiePothole Florida]),CAMELS_signatures.recession_beta([PrairiePothole Florida]),25,'MarkerEdgeColor',[0 0 0],'linewidth',1.0);
+saveFig(gcf,strcat('bivariate_','BFI90_recession_lakes'),fig_path,'-dpdf')
+disp(corr(CAMELS_signatures.BFI90(SurfaceWater),CAMELS_signatures.recession_beta(SurfaceWater),'Type','Spearman','Rows','Complete'))
+
+% snow
+plotBivariate(-1,-1,...
+    'x_name','BFI{90} [-]','y_name','\betam [-]','ID',1,...
+    'show_corr',false,'show_fit',false,'show_hist',false,...
+    'x_limits',[0 1],'y_limits',[0 7],...
+    'figure_title','(b) Snow','figure_name','release','save_figure',false,'figure_path',fig_path)
+p0=scatter(CAMELS_signatures.BFI90,CAMELS_signatures.recession_beta,25,'filled','MarkerFaceColor',[0.8 0.8 0.8]); %colour_mat(7,:)
+p1=scatter(CAMELS_signatures.BFI90(Snow),CAMELS_signatures.recession_beta(Snow),25,'filled','MarkerFaceColor',colour_mat(10,:));%colour_mat(10,:));
+saveFig(gcf,strcat('bivariate_','BFI90_recession_snow'),fig_path,'-dpdf')
+disp(corr(CAMELS_signatures.BFI90(Snow),CAMELS_signatures.recession_beta(Snow),'Type','Spearman','Rows','Complete'))
+
+%% Same plots but with BFI5 and BFI90
+% correlation for all catchments
+disp(corr(CAMELS_signatures.BFI5,CAMELS_signatures.BFI90,'Type','Spearman','Rows','Complete'))
+
+% subsurface
+plotBivariate(-1,-1,...
+    'x_name','BFI{5} [-]','y_name','BFI90 [-]','ID',1,...
+    'show_corr',false,'show_fit',false,'show_hist',false,...
+    'x_limits',[0 1],'y_limits',[0 1],...
+    'figure_title','(c) Subsurface','figure_name','release','save_figure',false,'figure_path',fig_path)
+p0=scatter(CAMELS_signatures.BFI5,CAMELS_signatures.BFI90,25,'filled','MarkerFaceColor',[0.8 0.8 0.8]); %colour_mat(7,:)
+p1=scatter(CAMELS_signatures.BFI5(Subsurface),CAMELS_signatures.BFI90(Subsurface),25,'filled','MarkerFaceColor',[0.4 0.4 0.4]); %colour_mat(12,:)
+saveFig(gcf,strcat('bivariate_','BFI5_BFI90_subsurface'),fig_path,'-dpdf')
+disp(corr(CAMELS_signatures.BFI5(Subsurface),CAMELS_signatures.BFI90(Subsurface),'Type','Spearman','Rows','Complete'))
+
+% lakes
+catchments = [288:294 297 363:365 367 368 145:158 160:162]; % Prairie Pothole Region and Florida
+plotBivariate(-1,-1,...
+    'x_name','BFI{5} [-]','y_name','BFI90 [-]','ID',1,...
+    'show_corr',false,'show_fit',false,'show_hist',false,...
+    'x_limits',[0 1],'y_limits',[0 1],...
+    'figure_title','(a) Surface Water','figure_name','release','save_figure',false,'figure_path',fig_path)
+p0=scatter(CAMELS_signatures.BFI5,CAMELS_signatures.BFI90,25,'filled','MarkerFaceColor',[0.8 0.8 0.8]); %colour_mat(7,:)
+p1=scatter(CAMELS_signatures.BFI5(SurfaceWater),CAMELS_signatures.BFI90(SurfaceWater),25,'filled','MarkerFaceColor',colour_mat(2,:));
+p2=scatter(CAMELS_signatures.BFI5([PrairiePothole Florida]),CAMELS_signatures.BFI90([PrairiePothole Florida]),25,'MarkerEdgeColor',[0 0 0],'linewidth',1.0);
+saveFig(gcf,strcat('bivariate_','BFI5_BFI90_lakes'),fig_path,'-dpdf')
+disp(corr(CAMELS_signatures.BFI5(SurfaceWater),CAMELS_signatures.BFI90(SurfaceWater),'Type','Spearman','Rows','Complete'))
+
+% snow
+plotBivariate(-1,-1,...
+    'x_name','BFI{5} [-]','y_name','BFI90 [-]','ID',1,...
+    'show_corr',false,'show_fit',false,'show_hist',false,...
+    'x_limits',[0 1],'y_limits',[0 1],...
+    'figure_title','(b) Snow','figure_name','release','save_figure',false,'figure_path',fig_path)
+p0=scatter(CAMELS_signatures.BFI5,CAMELS_signatures.BFI90,25,'filled','MarkerFaceColor',[0.8 0.8 0.8]); %colour_mat(7,:)
+p1=scatter(CAMELS_signatures.BFI5(Snow),CAMELS_signatures.BFI90(Snow),25,'filled','MarkerFaceColor',colour_mat(10,:));%colour_mat(10,:));
+saveFig(gcf,strcat('bivariate_','BFI5_BFI90_snow'),fig_path,'-dpdf')
+disp(corr(CAMELS_signatures.BFI5(Snow),CAMELS_signatures.BFI90(Snow),'Type','Spearman','Rows','Complete'))
 
 %% GLHYMPS (to check catchment averages)
 plotBivariate(porosity,CAMELS_data.geol_porosity,...
@@ -252,7 +330,7 @@ plotMapUS(CAMELS_data.gauge_lat,CAMELS_data.gauge_lon,log10(permeability),...
     'c_limits',[-17 -11],'c_lower_limit_open',false,'c_upper_limit_open',false,...
     'figure_title','','figure_name','Permeability')
 
-%% maps of baseflow signatures
+%% Maps of baseflow signatures
 plotMapUS(CAMELS_data.gauge_lat,CAMELS_data.gauge_lon,CAMELS_signatures.BFI5,...
     'attribute_name','BFI5 [-]','ID',CAMELS_data.gauge_id,...
     'colour_scheme','YlGnBu','flip_colour_scheme',false,...
@@ -271,7 +349,7 @@ plotMapUS(CAMELS_data.gauge_lat,CAMELS_data.gauge_lon,CAMELS_signatures.recessio
     'c_limits',[0 4],'c_lower_limit_open',false,'c_upper_limit_open',true,...
     'figure_title','(c)','figure_name','beta','save_figure',true,'figure_path',fig_path)
 
-%% Correlation plots
+%% Correlations between signatures
 plotBivariate(CAMELS_signatures.BFI5,CAMELS_signatures.BFI90,...
     'x_name','BFI5 [-]','y_name','BFI90 [-]','ID',CAMELS_data.gauge_id,...
     'show_corr',false,'show_fit',false,'show_hist',false,...
@@ -293,14 +371,18 @@ plotBivariate(CAMELS_signatures.BFI90,CAMELS_signatures.recession_beta,...
     'save_figure',true,'figure_path',fig_path,'figure_type','-dmeta')
 disp(corr(CAMELS_signatures.BFI90,CAMELS_signatures.recession_beta,'Type','Spearman','Rows','Complete'))
 
-%% print correlations between attributes and BFI etc.
-% catchments = [1:671]';
-additional_attributes = [
-    mean_age, freshwater_fraction+lake_fraction, ...
-    sinkholes, edwards_trinity_frac]; % matrix with additional attributes
-dispCorrelationsCAMELS(CAMELS_data,CAMELS_signatures.BFI5,'BFI5',...
-    catchments,additional_attributes)
-dispCorrelationsCAMELS(CAMELS_data,CAMELS_signatures.BFI90,'BFI90',...
-    catchments,additional_attributes)
-dispCorrelationsCAMELS(CAMELS_data,CAMELS_signatures.recession_beta,'\betam',...
-    catchments,additional_attributes)
+%% Create array that contains regions and catchment subgroups
+region = strings(size(CAMELS_data.gauge_id));
+region(GreatLakes) = "GreatLakes";
+region(UpperMississippi) = "UpperMississippi";
+region(AppalachianMountains) = "AppalachianMountains";
+region(OregonCascades) = "OregonCascades";
+region(OzarksMissouri) = "OzarksMissouri";
+region(EdwardsPlateau) = "EdwardsPlateau";
+region(PrairiePothole) = "PrairiePothole";
+region(Florida) = "Florida";
+
+subgroup = strings(size(CAMELS_data.gauge_id));
+subgroup(Subsurface) = "Subsurface";
+subgroup(lakes) = "SurfaceWater";
+subgroup(Snow) = "Snow";
