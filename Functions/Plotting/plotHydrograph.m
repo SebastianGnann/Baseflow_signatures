@@ -88,8 +88,8 @@ set(gca,'Layer','top')
 
 % leg = legend([p1 p2 p3 p4 p5],{'Q','Q{b,5}','Q{b,90}',legend_P,'PET'},...
 %     'Position',[0.779 0.520 0.122 0.310],'box','off');
-leg = legend([p1 p2 p3],{'Q','Q{b,5}','Q{b,90}'},...
-    'Position',[0.779 0.716 0.137 0.228],'box','off');
+leg = legend([p1 p2 p3],{'Q_{}','Q_{b,5}','Q_{b,90}'},...
+    'Position',[0.779 0.677 0.137 0.228],'box','off');
 
 leg.FontSize = 7;
 leg.ItemTokenSize = [7,7];
